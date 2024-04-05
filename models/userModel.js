@@ -1,5 +1,6 @@
 const mongoose = require('mongoose') ;
-const validator = require('validator')
+const validator = require('validator') ;
+const bcrypt = require('bcryptjs') ;
 
 const userSchema = new mongoose.Schema ({
 
@@ -24,7 +25,13 @@ const userSchema = new mongoose.Schema ({
     },
     passwordConfirm: { 
         type: String , 
-        required: [true , 'Confirm your password']
+        required: [true , 'Confirm your password'], 
+        validate: {
+            validator : function (el){
+                return el === this.password ;
+            },
+            message: "confirm password should equal the password"
+        }
     },
     rooms: {
         type : [String] 
@@ -34,6 +41,16 @@ const userSchema = new mongoose.Schema ({
     }
 });
 
+
+userSchema.pre('save', async function(next){
+    // run password if the password was modified . 
+    if (!this.isModified('password')) return next() ;
+    
+    this.password = await bcrypt.hash(this.password,12)
+    this.passwordConfirm = undefined ; // to dont persiste in database .
+    next() ;
+});
 const User =  mongoose.model('User',userSchema);
 
-module.exports = User ;
+
+ module.exports = User ;
