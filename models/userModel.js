@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -16,6 +18,11 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true, // Transform email to lowerCase
     validate: [validator.isEmail, 'Invalid email'],
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'], // Predefined user roles .
+    default : 'user'
   },
   password: {
     type: String,
@@ -40,6 +47,9 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   passwordChangedAt: Date, // represent the date of changing of the password .
+  passwordResetToken: String, 
+  passwordResetAt: Date
+
 });
 
 userSchema.pre('save', async function (next) {
@@ -62,16 +72,33 @@ userSchema.methods.correctPassword = async function (
 userSchema.methods.changedPasswordAfter = async function (JWT_TIME_CREATED) {
   // Only check if the user has changed his password if not there is no need to check .
   if (this.passwordChangedAt) {
-    const changedTimeStamp = parseInt(
+      const changedTimeStamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
       10,
     ); // transform it to int seconds
-    return changedTimeStamp > JWT_TIME_CREATED;
+    return changedTimeStamp > JWT_TIME_CREATED; 
   }
 
   // False means not changed .
   return false;
 };
+
+
+userSchema.methods.createPasswordResetToken = function  ()  {
+  
+   // create our token .
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  
+  this.passwordResetAt = Date.now() + 1000 * 60 * 10;
+
+  return resetToken;
+}
+
 
 const User = mongoose.model('User', userSchema);
 

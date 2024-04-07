@@ -14,5 +14,10 @@ router
     .post(Login)
 router
     .route('/')
-    .get(authController.protect,getallUser)    
+    .get(authController.protect, getallUser) 
+router
+    .post('/forgetPassword',authController.forgetPassword)       
+router
+    .route('/resetPassword')
+    .post(authController.resetPassword)     
 module.exports = router ; 

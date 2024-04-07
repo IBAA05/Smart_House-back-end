@@ -107,15 +107,39 @@ exports.protect = async (req,res,next) => {
         })
      }
 
-    // 4) check if the user changed  his password after sign a token .  
-     if(existUser.changedPasswordAfter(decoded.iat)){
+    // 4) check if the user changed  his password after sign a token .
+    if (await existUser.changedPasswordAfter(decoded.iat)) {
+         console.log("decode ", decoded.iat) 
         res.status(404).json({
-            status:'fail',
+            status:'fail', 
             message: 'User changed recently password login again'
         })
-     }
+     } 
 
     // Give access to prottect middlware (finish of authencation) 
     req.user = existUser ;
     next() ;
+}
+
+exports.forgetPassword = async(req, res, next) => {
+    
+    // 1) geting user based on his email and if the user exist . 
+    const user = await User.findOne({ email: req.body.email });
+    console.log('def')
+    if (user) {
+        res.status(404).json({
+            status: 'fail', 
+            message: 'cannot find user with this email'
+        })
+    }
+
+    // 2) generate reset token
+
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false }); // we save a user to database beacuase we modify it .
+    next()
+}
+
+exports.resetPassword = (req, res, next) => {
+    
 }

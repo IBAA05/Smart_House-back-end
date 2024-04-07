@@ -8,5 +8,5 @@ exports.getallUser = async (req,res,next) => {
         status: 'success',
         data : users 
     }) 
-  
+    next();
 }

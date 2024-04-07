@@ -4,8 +4,6 @@ const dotenv = require('dotenv')
 const app = require('./app') ;
 
 
-
-
 dotenv.config({path :'./config.env'})
 process.noDeprication = true ;
 process.traceDeprecation = true ;
