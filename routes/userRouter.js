@@ -14,7 +14,7 @@ router
     .post(Login)
 router
     .route('/')
-    .get(authController.protect, getallUser) 
+    .get( getallUser) 
 router
     .post('/forgetPassword',authController.forgetPassword)       
 router

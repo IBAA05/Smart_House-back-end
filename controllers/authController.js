@@ -10,8 +10,7 @@ const signToken =   id => {   // To sign token to a user .
     });
 }
 
-
-exports.signUp = async (req,res,next) => {
+exports.signUp = async (req, res, next) => {
     try {
         const newUser = (await User.create({
             username: req.body.username, 
@@ -49,7 +48,7 @@ exports.Login = async (req,res,next) => {
     if (!email || !password) { // existence for email and password
         return res.status(400).json({
             status : 'fail' , 
-            message : 'give your password and username'
+            message : 'give me your password and username'
         })
     }
     
@@ -69,6 +68,7 @@ exports.Login = async (req,res,next) => {
         }  
      
     // Every thing is Ok .    
+    console.log("define your self");
     const token = signToken(user._id) ;
     res.json({
         status : 'success' ,
@@ -168,5 +168,7 @@ exports.forgetPassword = async(req, res, next) => {
 }
 
 exports.resetPassword = (req, res, next) => {
-    
+
+
+
 }
